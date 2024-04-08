@@ -6,11 +6,12 @@ import io
 from PIL import Image, ImageDraw, ImageFont
 
 def draw_line(image, text, font_size, offset):
+    trimmed_text = text.strip()
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype("lancelot-regular.ttf", font_size)  # Choose appropriate font and size
-    text_width = draw.textlength(text, font=font)
+    text_width = draw.textlength(trimmed_text, font=font)
     position = ((image.width - text_width) // 2, ((image.height) // 2 + offset))
-    draw.text(position, text, font=font, fill=(255, 255, 255), stroke_width=2, stroke_fill='black')  # White text
+    draw.text(position, trimmed_text, font=font, fill=(255, 255, 255), stroke_width=2, stroke_fill='black')  # White text
 
 def lambda_handler(event, context):
     s3_client = boto3.client('s3')
