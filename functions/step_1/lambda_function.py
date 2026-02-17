@@ -44,7 +44,7 @@ def lambda_handler(event, context):
             'stable_image_params': {
                 "prompt": f"A fantasy background image with a theme of {title}, vibrant colors, detailed artwork, no text or words"
             },
-            'model_id': 'stability.stable-image-core-v1:0',
+            'model_id': 'arn:aws:bedrock:us-east-1::foundation-model/stability.stable-image-core-v1:0',
             'bucket': bucket_name,
             'background_key': background_key.replace(' ', '+'),
             'background_object': f"s3://{bucket_name}/{background_key.replace(' ', '+')}",
