@@ -41,18 +41,10 @@ def lambda_handler(event, context):
         'body': {
             'title': title,
             'author': author,
-            'titan_params': {
-                "taskType": "TEXT_IMAGE",
-                "textToImageParams": {"text": f"A fantasy background image with a theme of {title} with NO text"},
-                "imageGenerationConfig": {
-                    "numberOfImages": 1,
-                    "quality": "standard",
-                    "cfgScale": 8.0,
-                    "height": 640,
-                    "width": 384,
-                    "seed": 0,
-                },
+            'stable_image_params': {
+                "prompt": f"A fantasy background image with a theme of {title}, vibrant colors, detailed artwork, no text or words"
             },
+            'model_id': 'stability.stable-image-core-v1:0',
             'bucket': bucket_name,
             'background_key': background_key.replace(' ', '+'),
             'background_object': f"s3://{bucket_name}/{background_key.replace(' ', '+')}",

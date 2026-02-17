@@ -7,41 +7,19 @@ import base64
 def generate_cover_image(title):
     # Bedrock Configuration
     bedrock_client = boto3.client('bedrock-runtime')
-    model_id = "amazon.titan-image-generator-v1"  # Replace with your actual Titan model ID 
+    model_id = "stability.stable-image-core-v1:0"
 
-    # Generate image using Bedrock Titan
-    # response = bedrock_client.generate_image(
-    #     modelId=model_id,
-    #     prompt=f"A fantasy background image with a theme of {title} with NO text",
-    #     numInferenceUnits=1,  # Adjust based on desired image quality and cost
-    #     outputFormat="PNG"
-    # )
-    
-    # try:
-        # The different model providers have individual request and response formats.
-        # For the format, ranges, and default values for Titan Image models refer to:
-        # https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
-
-    request = json.dumps(
-{
-    "taskType": "TEXT_IMAGE",
-    "textToImageParams": {"text": f"A fantasy background image with a theme of {title} with NO text"},
-    "imageGenerationConfig": {
-        "numberOfImages": 1,
-        "quality": "standard",
-        "cfgScale": 8.0,
-        "height": 640,
-        "width": 384,
-        "seed": 0,
-    },
-}
-    )
+    # Stability AI Stable Image Core request format
+    request = json.dumps({
+        "prompt": f"A fantasy background image with a theme of {title}, vibrant colors, detailed artwork, no text or words"
+    })
 
     response = bedrock_client.invoke_model(
-        modelId="amazon.titan-image-generator-v1", body=request
+        modelId=model_id, 
+        body=request
     )
 
-    response_body = json.loads(response["body"].read())
+    response_body = json.loads(response["body"].read().decode("utf-8"))
     base64_image_data = response_body["images"][0]
     
     # except Exception:
