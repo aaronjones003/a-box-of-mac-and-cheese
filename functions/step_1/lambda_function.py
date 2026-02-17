@@ -42,9 +42,13 @@ def lambda_handler(event, context):
             'title': title,
             'author': author,
             'stable_image_params': {
-                "prompt": f"A fantasy background image with a theme of {title}, vibrant colors, detailed artwork, no text or words"
+                "text_prompts": [{"text": f"A fantasy background image with a theme of {title}, vibrant colors, detailed artwork, no text or words"}],
+                "cfg_scale": 8,
+                "height": 640,
+                "width": 384,
+                "steps": 50
             },
-            'model_id': 'arn:aws:bedrock:us-east-1::foundation-model/stability.stable-image-core-v1:0',
+            'model_id': 'stability.stable-diffusion-xl-v1',
             'bucket': bucket_name,
             'background_key': background_key.replace(' ', '+'),
             'background_object': f"s3://{bucket_name}/{background_key.replace(' ', '+')}",
