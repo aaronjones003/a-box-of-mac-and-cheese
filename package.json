@@ -1,0 +1,12 @@
+{
+  "name": "a-box-of-mac-and-cheese",
+  "version": "1.0.0",
+  "description": "AI-generated mac and cheese art",
+  "scripts": {
+    "test": "node test.js",
+    "serve": "npx http-server -p 8081 -c-1"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  }
+}
