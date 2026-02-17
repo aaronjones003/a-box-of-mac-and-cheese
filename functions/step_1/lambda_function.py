@@ -42,11 +42,20 @@ def lambda_handler(event, context):
             'title': title,
             'author': author,
             'stable_image_params': {
-                "prompt": f"A fantasy background image with a theme of {title}, vibrant colors, detailed artwork, no text or words",
-                "aspect_ratio": "9:16",
-                "output_format": "png"
+                "taskType": "TEXT_IMAGE",
+                "textToImageParams": {
+                    "text": f"A fantasy background image with a theme of {title}, vibrant colors, detailed artwork, no text or words"
+                },
+                "imageGenerationConfig": {
+                    "numberOfImages": 1,
+                    "quality": "standard",
+                    "cfgScale": 8.0,
+                    "height": 640,
+                    "width": 384,
+                    "seed": 0
+                }
             },
-            'model_id': 'stability.sd3-large-v1:0',
+            'model_id': 'amazon.titan-image-generator-v2:0',
             'bucket': bucket_name,
             'background_key': background_key.replace(' ', '+'),
             'background_object': f"s3://{bucket_name}/{background_key.replace(' ', '+')}",
