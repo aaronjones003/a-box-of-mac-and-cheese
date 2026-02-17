@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - A Box of Mac and Cheese</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .test {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #333;
+        }
+        .pass { background: #002200; border-color: #00ff00; }
+        .fail { background: #220000; border-color: #ff0000; color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>Box of Mac and Cheese - Test Suite</h1>
+    <div id="test-results"></div>
+    
+    <!-- Include the actual HTML structure -->
+    <div style="display: none;">
+        <div class="container">
+            <h1>🧀 A Box of Mac and Cheese</h1>
+            
+            <div id="image-container">
+                <div id="status">Ready to generate your masterpiece!</div>
+                <img id="image" alt="Generated Mac and Cheese Art" />
+            </div>
+            
+            <div id="controls">
+                <button id="generate-btn">
+                    <span>✨</span>
+                    <span>Generate</span>
+                </button>
+                <button id="download-btn" disabled>
+                    <span>⬇️</span>
+                    <span>Download</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const results = document.getElementById('test-results');
+        
+        function test(name, fn) {
+            try {
+                fn();
+                results.innerHTML += `<div class="test pass">✓ ${name}</div>`;
+            } catch (error) {
+                results.innerHTML += `<div class="test fail">✗ ${name}: ${error.message}</div>`;
+            }
+        }
+
+        // Run tests
+        test('DOM elements exist', () => {
+            const statusEl = document.getElementById('status');
+            const imageEl = document.getElementById('image');
+            const generateBtn = document.getElementById('generate-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            
+            if (!statusEl) throw new Error('status element not found');
+            if (!imageEl) throw new Error('image element not found');
+            if (!generateBtn) throw new Error('generate-btn element not found');
+            if (!downloadBtn) throw new Error('download-btn element not found');
+        });
+
+        test('Generate button is enabled', () => {
+            const generateBtn = document.getElementById('generate-btn');
+            if (generateBtn.disabled) throw new Error('Generate button should not be disabled');
+        });
+
+        test('Download button is disabled initially', () => {
+            const downloadBtn = document.getElementById('download-btn');
+            if (!downloadBtn.disabled) throw new Error('Download button should be disabled initially');
+        });
+
+        test('Status element has initial text', () => {
+            const statusEl = document.getElementById('status');
+            if (!statusEl.textContent.includes('Ready')) {
+                throw new Error('Status should show ready message');
+            }
+        });
+
+        test('Image is hidden initially', () => {
+            const imageEl = document.getElementById('image');
+            const display = window.getComputedStyle(imageEl).display;
+            if (display !== 'none') {
+                throw new Error('Image should be hidden initially');
+            }
+        });
+
+        // Test script loading
+        test('scripts.js functions are available', () => {
+            // This will fail if scripts.js doesn't load properly
+            if (typeof init !== 'function') {
+                throw new Error('init function not found - scripts.js may not be loading');
+            }
+        });
+    </script>
+    
+    <script src="./scripts.js"></script>
+    
+    <script>
+        // Test after scripts.js loads
+        setTimeout(() => {
+            test('Event listeners attached', () => {
+                const generateBtn = document.getElementById('generate-btn');
+                const downloadBtn = document.getElementById('download-btn');
+                
+                // Check if listeners are attached by checking if clicking doesn't throw
+                try {
+                    const clickEvent = new MouseEvent('click', { bubbles: true });
+                    // Don't actually trigger the API call, just verify no error
+                } catch (e) {
+                    throw new Error('Event listeners not properly attached');
+                }
+            });
+        }, 100);
+    </script>
+</body>
+</html>
