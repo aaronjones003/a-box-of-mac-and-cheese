@@ -3,10 +3,7 @@ let currentImageUrl = null;
 let pollCount = 0;
 const MAX_POLLS = 60; // 3 minutes max (60 * 3 seconds)
 
-const statusEl = document.getElementById('status');
-const imageEl = document.getElementById('image');
-const generateBtn = document.getElementById('generate-btn');
-const downloadBtn = document.getElementById('download-btn');
+let statusEl, imageEl, generateBtn, downloadBtn;
 
 function setStatus(message) {
     statusEl.textContent = message;
@@ -139,5 +136,23 @@ function downloadImage() {
     document.body.removeChild(link);
 }
 
-generateBtn.addEventListener('click', generate);
-downloadBtn.addEventListener('click', downloadImage);
+function init() {
+    statusEl = document.getElementById('status');
+    imageEl = document.getElementById('image');
+    generateBtn = document.getElementById('generate-btn');
+    downloadBtn = document.getElementById('download-btn');
+
+    if (!statusEl || !imageEl || !generateBtn || !downloadBtn) {
+        console.error('Required DOM elements not found');
+        return;
+    }
+
+    generateBtn.addEventListener('click', generate);
+    downloadBtn.addEventListener('click', downloadImage);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
