@@ -1,0 +1,206 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A Box of Mac and Cheese - Fantasy Book Cover Generator
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name
+  
+  S3BucketName:
+    Type: String
+    Default: a-box-of-mac-and-cheese-images
+    Description: S3 bucket for storing generated images
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+    MemorySize: 512
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        S3_BUCKET: !Ref S3BucketName
+
+Resources:
+  # S3 Bucket for storing generated images
+  ImageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3600
+
+  ImageBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ImageBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${ImageBucket.Arn}/*'
+
+  # Lambda Layer for Pillow
+  PillowLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: pillow-layer
+      Description: Pillow (PIL) library for image processing
+      ContentUri: layers/pillow/
+      CompatibleRuntimes:
+        - python3.11
+    Metadata:
+      BuildMethod: python3.11
+
+  # Step 1: Generate title and metadata
+  Step1Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'aBoxOfMacAndCheeseStep1-${Environment}'
+      CodeUri: src/step_1/
+      Handler: lambda_function.lambda_handler
+      Description: Generate random book title and author
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref S3BucketName
+
+  # Step 2: Overlay text on image
+  Step2Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'aBoxOfMacAndCheeseStep2-${Environment}'
+      CodeUri: src/step_2/
+      Handler: lambda_function.lambda_handler
+      Description: Overlay title text on generated background image
+      Timeout: 60
+      MemorySize: 1024
+      Layers:
+        - !Ref PillowLayer
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref S3BucketName
+        - S3WritePolicy:
+            BucketName: !Ref S3BucketName
+
+  # Invoke Step Function
+  InvokeStepFunctionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'aBoxOfMacAndCheeseInit-${Environment}'
+      CodeUri: src/invoke_step_function/
+      Handler: lambda_function.lambda_handler
+      Description: Initiates the Step Functions workflow
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !Ref BookCoverStateMachine
+      Policies:
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt BookCoverStateMachine.Name
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /init
+            Method: GET
+
+  # Get Step Function Status
+  GetStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'aBoxOfMacAndCheeseStatus-${Environment}'
+      CodeUri: src/get_status/
+      Handler: lambda_function.lambda_handler
+      Description: Get status of Step Functions execution
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - states:DescribeExecution
+              Resource: '*'
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /status
+            Method: POST
+
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'aBoxOfMacAndCheeseAPI-${Environment}'
+      StageName: default
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  # Step Functions State Machine
+  BookCoverStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub 'BookCoverGenerator-${Environment}'
+      DefinitionUri: statemachine/book-cover-generator.asl.json
+      DefinitionSubstitutions:
+        Step1FunctionArn: !GetAtt Step1Function.Arn
+        Step2FunctionArn: !GetAtt Step2Function.Arn
+        BedrockModelId: amazon.titan-image-generator-v2:0
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref Step1Function
+        - LambdaInvokePolicy:
+            FunctionName: !Ref Step2Function
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: 'arn:aws:bedrock:*::foundation-model/*'
+        - S3WritePolicy:
+            BucketName: !Ref S3BucketName
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/default'
+    Export:
+      Name: !Sub '${AWS::StackName}-ApiEndpoint'
+
+  InitEndpoint:
+    Description: Endpoint to initiate book cover generation
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/default/init'
+
+  StatusEndpoint:
+    Description: Endpoint to check generation status
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/default/status'
+
+  S3BucketName:
+    Description: S3 bucket for generated images
+    Value: !Ref ImageBucket
+
+  StateMachineArn:
+    Description: Step Functions State Machine ARN
+    Value: !Ref BookCoverStateMachine
+    Export:
+      Name: !Sub '${AWS::StackName}-StateMachineArn'

@@ -1,7 +1,8 @@
 let interval = null;
 let currentImageUrl = null;
 let pollCount = 0;
-const MAX_POLLS = 60; // 3 minutes max (60 * 3 seconds)
+const MAX_POLLS = CONFIG.MAX_POLLS;
+const POLL_INTERVAL = CONFIG.POLL_INTERVAL_MS;
 
 let statusEl, imageEl, generateBtn, downloadBtn;
 
@@ -45,7 +46,7 @@ async function generate() {
         setStatus('Initializing generation...');
         pollCount = 0;
 
-        const initResponse = await fetch('https://2gotexgdyd.execute-api.us-east-1.amazonaws.com/default/aBoxOfMacAndCheeseInit');
+        const initResponse = await fetch(CONFIG.API_INIT_ENDPOINT);
         
         if (!initResponse.ok) {
             throw new Error(`Failed to initialize: ${initResponse.status}`);
@@ -73,7 +74,7 @@ async function generate() {
                 }
 
                 const statusResponse = await fetch(
-                    "https://mcvwsqrip4.execute-api.us-east-1.amazonaws.com/default/aBoxOfMacAndCheeseStatus",
+                    CONFIG.API_STATUS_ENDPOINT,
                     {
                         method: "POST",
                         body: JSON.stringify({
@@ -113,7 +114,7 @@ async function generate() {
                 setStatus('Error checking status. Please try again.');
                 setButtonError();
             }
-        }, 3000);
+        }, POLL_INTERVAL);
 
     } catch (error) {
         console.error('Generation error:', error);

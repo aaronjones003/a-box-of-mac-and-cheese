@@ -1,0 +1,67 @@
+{
+  "Comment": "Generate fantasy book covers using Bedrock and Lambda functions",
+  "StartAt": "GenerateTitleAndMetadata",
+  "States": {
+    "GenerateTitleAndMetadata": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${Step1FunctionArn}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "GenerateBackgroundImage"
+    },
+    "GenerateBackgroundImage": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeModel",
+      "Parameters": {
+        "ModelId.$": "$.body.model_id",
+        "Body.$": "$.body.stable_image_params",
+        "ContentType": "application/json",
+        "Accept": "*/*",
+        "Output": {
+          "S3Uri.$": "$.body.background_object"
+        }
+      },
+      "ResultPath": "$.bedrock_result",
+      "Next": "OverlayTextOnImage"
+    },
+    "OverlayTextOnImage": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${Step2FunctionArn}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  }
+}
