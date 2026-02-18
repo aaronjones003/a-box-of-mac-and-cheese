@@ -136,6 +136,46 @@ async function runTests() {
       failed++;
     }
 
+    // Test 7: Status div is hidden when image is displayed
+    try {
+      // Simulate showing an image
+      await page.evaluate(() => {
+        const imageEl = document.getElementById('image');
+        const statusEl = document.getElementById('status');
+        
+        // Call showImage function
+        if (typeof showImage === 'function') {
+          showImage('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+        }
+        
+        return {
+          imageDisplay: window.getComputedStyle(imageEl).display,
+          statusDisplay: window.getComputedStyle(statusEl).display
+        };
+      });
+
+      const displays = await page.evaluate(() => {
+        const imageEl = document.getElementById('image');
+        const statusEl = document.getElementById('status');
+        return {
+          imageDisplay: window.getComputedStyle(imageEl).display,
+          statusDisplay: window.getComputedStyle(statusEl).display
+        };
+      });
+
+      if (displays.imageDisplay === 'none') {
+        throw new Error('Image should be visible after showImage()');
+      }
+      if (displays.statusDisplay !== 'none') {
+        throw new Error('Status div should be hidden when image is displayed');
+      }
+      console.log('✅ Test 7: Status div is hidden when image is displayed');
+      passed++;
+    } catch (e) {
+      console.log('❌ Test 7: Status visibility regression test failed -', e.message);
+      failed++;
+    }
+
     console.log(`\n📊 Summary: ${passed} passed, ${failed} failed`);
     
     if (failed > 0) {
