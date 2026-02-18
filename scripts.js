@@ -100,7 +100,6 @@ async function generate() {
                     
                     showImage(imageUrl);
                     setButtonFinished();
-                    setStatus('');
                     
                 } else if (statusData.status === 'FAILED' || statusData.status === 'TIMED_OUT' || statusData.status === 'ABORTED') {
                     clearInterval(interval);
