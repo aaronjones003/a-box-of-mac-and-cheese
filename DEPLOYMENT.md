@@ -68,7 +68,7 @@ Stack Outputs:
 ---------------------------------------------------------
 ```
 
-Update `frontend/config.js`:
+Update `config.js`:
 
 ```javascript
 const CONFIG = {
@@ -83,11 +83,10 @@ const CONFIG = {
 ### Step 6: Test
 
 ```bash
-cd frontend
 npm test
 ```
 
-Or open `frontend/index.html` in a browser.
+Or open `index.html` in a browser.
 
 ## Subsequent Deployments
 
@@ -136,7 +135,7 @@ sam deploy --config-env dev
 ### Update Frontend Only
 
 No deployment needed - just update files and refresh browser.
-For production, upload `frontend/` to your hosting service.
+For production, the frontend files (index.html, scripts.js, config.js) are at the root level and work with GitHub Pages automatically.
 
 ## Environment Management
 
@@ -244,6 +243,7 @@ Ensure your AWS user/role has:
 - Verify bucket policy allows public read
 - Check browser console for CORS errors
 - Ensure API endpoints in `config.js` are correct
+- For GitHub Pages, ensure files are at root level (not in a subdirectory)
 
 ## Cost Optimization
 

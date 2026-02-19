@@ -37,11 +37,11 @@ A serverless web application that generates random fantasy book covers in the st
 ├── scripts/                  # Deployment and setup scripts
 │   ├── setup.sh             # Initial setup
 │   └── deploy.sh            # Deploy to AWS
-├── frontend/                # Web application
-│   ├── index.html
-│   ├── scripts.js
-│   ├── config.js            # API endpoint configuration
-│   └── test.js              # Automated tests
+├── index.html                # Frontend web application
+├── scripts.js                # Frontend application logic
+├── config.js                 # API endpoint configuration
+├── test.js                   # Automated tests
+├── test.html                 # Test runner
 └── README.md
 ```
 
@@ -95,7 +95,7 @@ This will:
 ### 4. Configure Frontend
 
 1. After deployment, note the API endpoints from the output
-2. Update `frontend/config.js`:
+2. Update `config.js`:
 
 ```javascript
 const CONFIG = {
@@ -108,11 +108,10 @@ const CONFIG = {
 ### 5. Test Locally
 
 ```bash
-cd frontend
 npm test
 ```
 
-Or open `frontend/index.html` in a browser.
+Or open `index.html` in a browser.
 
 ## Deployment Details
 
@@ -155,7 +154,6 @@ After deployment, the stack provides:
 
 ```bash
 # Run frontend tests
-cd frontend
 npm test
 
 # Start local API (requires SAM)
@@ -217,7 +215,7 @@ aws cloudformation describe-stack-events --stack-name a-box-of-mac-and-cheese
 
 ### Frontend Not Connecting
 
-- Verify API endpoints in `frontend/config.js`
+- Verify API endpoints in `config.js`
 - Check CORS configuration in API Gateway
 - Inspect browser console for errors
 
@@ -226,7 +224,6 @@ aws cloudformation describe-stack-events --stack-name a-box-of-mac-and-cheese
 The project includes automated tests:
 
 ```bash
-cd frontend
 npm test
 ```
 

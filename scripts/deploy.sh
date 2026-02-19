@@ -57,6 +57,6 @@ aws cloudformation describe-stacks \
 
 echo -e "\n${GREEN}🎉 Deployment successful!${NC}"
 echo -e "${YELLOW}Next steps:${NC}"
-echo "1. Update frontend/config.js with the API endpoints"
-echo "2. Deploy the frontend to your hosting service"
+echo "1. Update config.js with the API endpoints"
+echo "2. Deploy the frontend to your hosting service (or use GitHub Pages)"
 echo "3. Test the application"

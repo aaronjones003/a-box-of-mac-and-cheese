@@ -60,10 +60,10 @@ A Box of Mac and Cheese is a serverless application that generates AI-powered fa
 - Image display and download
 
 **Key Files**:
-- `frontend/index.html` - Main UI
-- `frontend/scripts.js` - Application logic
-- `frontend/config.js` - API endpoint configuration
-- `frontend/test.js` - Automated tests
+- `index.html` - Main UI
+- `scripts.js` - Application logic
+- `config.js` - API endpoint configuration
+- `test.js` - Automated tests
 
 ### API Gateway
 
@@ -371,7 +371,7 @@ A Box of Mac and Cheese is a serverless application that generates AI-powered fa
 ### CI/CD (Optional)
 
 Can be integrated with:
-- GitHub Actions
+- GitHub Actions (frontend auto-deploys via GitHub Pages)
 - AWS CodePipeline
 - GitLab CI
 
@@ -402,3 +402,7 @@ Managed via SAM configuration profiles.
 3. **Terraform**: Multi-cloud IaC
 4. **ECS/Fargate**: Container-based deployment
 5. **Lambda@Edge**: Edge computing for global users
+
+## Frontend Deployment
+
+The frontend files (index.html, scripts.js, config.js, test.js, test.html) are kept at the root level for GitHub Pages compatibility. This allows the live demo to work without redirects or subdirectory configuration.
