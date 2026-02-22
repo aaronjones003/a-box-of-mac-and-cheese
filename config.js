@@ -3,8 +3,8 @@
 
 const CONFIG = {
   // API Gateway endpoints - update these after running deploy.sh
-  API_INIT_ENDPOINT: 'https://YOUR_API_ID.execute-api.us-east-1.amazonaws.com/default/init',
-  API_STATUS_ENDPOINT: 'https://YOUR_API_ID.execute-api.us-east-1.amazonaws.com/default/status',
+  API_INIT_ENDPOINT: 'https://2gotexgdyd.execute-api.us-east-1.amazonaws.com/default/aBoxOfMacAndCheeseInit',
+  API_STATUS_ENDPOINT: 'https://mcvwsqrip4.execute-api.us-east-1.amazonaws.com/default/aBoxOfMacAndCheeseStatus',
   
   // Polling configuration
   POLL_INTERVAL_MS: 3000,
